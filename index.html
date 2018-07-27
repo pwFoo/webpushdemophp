@@ -2,6 +2,8 @@
 <html lang="en-us">
 	<head>
 		<meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <link rel="manifest" href="manifest.json">
 		<title>Web Push Notifications Demo</title>
 	</head>
 	<body>
@@ -11,7 +13,8 @@
 	    <button class="btn--action" id="initiate-push-2" disabled="disabled">Initiating...</button>
 		<p>Unsubscribe from browser dependent service and send unsubscribe to backend.</p>
 	    <button class="btn--action" id="unsubscribe-push-2" disabled="disabled">Initiating...</button>
-
+        <h2>"Add to homescreen" support</h2>
+        <p>Demo supports full screen mode if added to homescreen as app shortcut in Chrome for Android</p>
 		<script src="scripts/toFormData.js"></script>
 	    <script src="scripts/util.js"></script>
 	    <script src="scripts/script.js"></script>
