@@ -4,7 +4,6 @@ const obj2fd = (obj, form, namespace) => {
     let formKey;
 
     for (let property in obj) {
-        //if (obj.hasOwnProperty(property) && obj[property]) {
         if (obj.hasOwnProperty(property)) {
             if (namespace) {
                 formKey = namespace + '[' + property + ']';
@@ -21,7 +20,6 @@ const obj2fd = (obj, form, namespace) => {
             }
         }
     }
-
     return fd;
 }
 
@@ -36,7 +34,6 @@ function urlB64ToUint8Array(base64String) {
     for (let i = 0; i < rawData.length; ++i) {
         outputArray[i] = rawData.charCodeAt(i);
     }
-
     return outputArray;
 }
 
@@ -52,6 +49,7 @@ function getPublicKey(keyUrl) {
 /*** END HELPER FUNCTIONS ***/
 
 
+/*** ServiceWorker de-/registration ***/
 function registerServiceWorker() {
     return navigator.serviceWorker.register('service-worker.js');
 }
@@ -69,58 +67,98 @@ function resetServiceWorkerAndPush() {
             });
         });
 }
+/*** END ServiceWorker de-/registration ***/
 
+
+/*** Push Subscription handling ***/
 function subscribePush(registration, keyUrl) {
+    // get public key from backend server
     return getPublicKey(keyUrl).then(function(key) {
-        return registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: key
-        });
+            // subscribe to notification service
+            return registration.pushManager.subscribe({
+                userVisibleOnly: true,      // needed!
+                applicationServerKey: key   // backend server validation by pubkey
+            });
     });
+}
+
+function getPushSubscription() {
+    // wait until ServiceWorker is ready
+    return navigator.serviceWorker.ready
+        .then(function(registration) {
+            // Get current subscription state
+            return registration.pushManager.getSubscription();
+        });
 }
 
 function updateSubscription(url , subscription) {
     console.log("FUNCTION: ", "updateSubscription", "\nURL: ", url, "\nSUBSCRIPTION: ", subscription);
-	return fetch(url, {
+    // body (getPushSubscription object) converted to JSON and FormData object to populate PHP $_POST with fetch()
+    return fetch(url, {
         method: 'post',
         body: obj2fd(subscription.toJSON())
     });
 }
 
 function registerPush(subscribeUrl, keyurl) {
+    // wait until ServiceWorker is ready
     return navigator.serviceWorker.ready
         .then(function(registration) {
-            return registration.pushManager.getSubscription().then(function(subscription) {
+            // get current subscription state
+            return registration.pushManager.getSubscription()
+            .then(function(subscription) {
+                // verify subscription
                 if (subscription) {
-                    // renew subscription if we're within 5 days of expiration
                     if (subscription.expirationTime && Date.now() > subscription.expirationTime - 432000000) {
+                        // renew subscription if we're within 5 days of expiration
                         return unsubscribePush().then(function() {
+                            // return renewed subscription
                             return subscribePush(registration, keyurl);
                         });
                     }
+                    // return existing subscription
                     return subscription;
                 }
+                // get a new subscription
                 return subscribePush(registration, keyurl);
             });
         })
         .then(function(subscription) {
+            // send update to backend server to update database
             updateSubscription(subscribeUrl, subscription);
+            // return subscription
             return subscription;
         });
 }
 
-function sendMessage(url, sub, title, message, icon = null, clickUrl = null, delay = null) {
-    var key = sub.getKey('p256dh'),
-        token = sub.getKey('auth'),
-        contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];
+function unsubscribePush(unsubscribeUrl) {
+    // get current subscription
+    return getPushSubscription().then(function(subscription) {
+        // unsubscribe from subscription
+        return subscription.unsubscribe().then(function() {
+            // send update to backend server to update database
+            updateSubscription(unsubscribeUrl, subscription);
+        });
+    });
+}
+/*** END Push Subscription handling ***/
 
+
+/*** Test notification send ***/
+function sendMessage(url, sub, title, message, icon = null, clickUrl = null, delay = null) {
+    var publicKey = sub.getKey('p256dh'),
+        authToken = sub.getKey('auth'),
+        contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];
+    // notifiation
     var body = {
+            // prepared subscription array
             subscription: {
                 endpoint: sub.endpoint,
-                publicKey: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
-                authToken: token ? btoa(String.fromCharCode.apply(null, new Uint8Array(token))) : null,
+                publicKey: publicKey ? btoa(String.fromCharCode.apply(null, new Uint8Array(publicKey))) : null,
+                authToken: authToken ? btoa(String.fromCharCode.apply(null, new Uint8Array(authToken))) : null,
                 contentEncoding
             },
+            // payload array with data
             payload: {
                 title: title,
                 message: message,
@@ -128,34 +166,23 @@ function sendMessage(url, sub, title, message, icon = null, clickUrl = null, del
                 url: clickUrl, clickUrl
             }
     }
-
+    // optional debugging / testing notifiation delay (done server side)
     if (delay) {
         body.delay = delay;
     }
-
+    // body converted to FormData object to populate $_POST with fetch()
     return fetch(url, {
         method: 'post',
         body: obj2fd(body)
     });
 }
+/*** END Test notification send ***/
 
-function getPushSubscription() {
-    return navigator.serviceWorker.ready
-        .then(function(registration) {
-            return registration.pushManager.getSubscription();
-        });
-}
 
-function unsubscribePush(unsubscribeUrl) {
-    return getPushSubscription().then(function(subscription) {
-        return subscription.unsubscribe().then(function() {
-            updateSubscription(unsubscribeUrl, subscription);
-        });
-    });
-}
-
+/*** Initialize notification handling ***/
 var notify = function(elem, options = {}) {
     elem = document.getElementById(elem);
+    // default options and merge with param options
     options = Object.assign({},{
         url: './api/notify.php',
         subscribeUrl: './api/subscribe.php',
@@ -169,7 +196,6 @@ var notify = function(elem, options = {}) {
         off: 'images/notifications_off.png',
         delay: null
     }, options);
-
     // check browser for serviceWorker & PushManager support
     if (!(navigator.serviceWorker && 'PushManager' in window)) {
         // service worker is not supported, so it won't work!
@@ -178,10 +204,11 @@ var notify = function(elem, options = {}) {
         elem.style.opacity = 0.5;
         return;
     }
-
-    // check and set initial state icon
+    // register ServiceWorker
     registerServiceWorker().then(function() {
+        // get subscription state
         getPushSubscription().then(function(subscription) {
+            //check and set initial state icon
             if (subscription) {
                 elem.setAttribute('src', options.on);
                 elem.setAttribute('title', 'Click to deactivate');
@@ -190,15 +217,17 @@ var notify = function(elem, options = {}) {
             }
         });
 
-        // add event listener for notification de-/activation click
+        // add click event listener for notification de-/activation
         elem.addEventListener('click', function(event) {
             event.preventDefault();
             if (elem.getAttribute('src') == options.on) {
+                // unsubscribe push
                 unsubscribePush(options.unsubscribeUrl).then(function() {
                     elem.setAttribute('src', options.off);
                     elem.setAttribute('title', 'Click to activate');
                 });
             } else {
+                // subscribe push
                 registerPush(options.subscribeUrl, options.keyUrl).then(function(sub) {
                     elem.setAttribute('src', options.on);
                     elem.setAttribute('title', 'Click to deactivate');
@@ -208,3 +237,4 @@ var notify = function(elem, options = {}) {
         });
     });
 }
+/*** END Initialize notification handling ***/
