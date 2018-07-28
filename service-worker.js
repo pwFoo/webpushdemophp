@@ -1,8 +1,8 @@
 'use strict';
-
+/*
 importScripts('./scripts/toFormData.js');
 importScripts('./scripts/util.js');
-
+*/
 
 self.addEventListener('install', function(event) {
     self.skipWaiting();
@@ -19,7 +19,7 @@ self.addEventListener('push', function(event) {
         registration.showNotification(data.title, {
             body: data.message,
             data: data.url,
-            icon: 'images/toast-image.jpg'
+            icon: data.icon
         })
     );
 });
@@ -46,7 +46,7 @@ self.addEventListener('notificationclick', function(event) {
             })
     );
 });
-
+/*
 self.addEventListener('pushsubscriptionchange', function(event) {
     event.waitUntil(
         Promise.all([
@@ -56,3 +56,4 @@ self.addEventListener('pushsubscriptionchange', function(event) {
         ])
     );
 });
+*/
