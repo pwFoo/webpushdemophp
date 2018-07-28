@@ -16,12 +16,7 @@
 
         <h2>"Add to homescreen" support</h2>
         <p>Demo supports full screen mode if added to homescreen as app shortcut in Chrome for Android</p>
-		<?php if (isset($_GET['notificationClick']) && $_GET['notificationClick'] == 1) { ?>
 
-		<h2>Info about NotificationClick Event</h2>
-		<p>Notification was clicked and a window opened!<br />
-		<a href="<?=$_SERVER['PHP_SELF']?>">Delete notificationClick info</a></p>
-		<?php } ?>
 		<script src="scripts/notifications.js"></script>
 		<script>
 			var options = {
