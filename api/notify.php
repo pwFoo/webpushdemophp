@@ -9,6 +9,11 @@ require __DIR__ . '/../webpush/autoload.php';
 use Minishlink\WebPush\WebPush;
 use Minishlink\WebPush\Subscription;
 
+// delay?
+if (isset($_POST['delay'])) {
+    sleep ($_POST['delay']);
+}
+
 $auth = [
     'GCM' => "AAAA7H1rE4g:APA91bEUrpqj9XHCke4j8vnclVWL-nVSx_qiCaJCKPt6-tu8F9zyhJhztRq1Q-w-PvhD_9saDx7A-FJ8bXAAYUdivb58YECrpzfjUT0svMRNPzrsdEZ3Iy7NEPS0__G3ttgukVGol7Ik",
     'VAPID' => [
@@ -29,11 +34,17 @@ $payload = json_encode($_POST['payload']);
 //print_r($sub);
 //die();
 
+
 $res = $webPush->sendNotification(
     $sub,
     $payload, // optional (defaults null)
     true // optional (defaults false)
 );
+
+if ($res == true) {
+    print_r($_POST);
+    die();
+}
 
 print_r($res);
 die();

@@ -5,6 +5,9 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <link rel="manifest" href="manifest.json">
 		<title>Web Push Notifications Demo</title>
+		<script>
+			const DELAY = null;	// set seconds delay (int) to test closed browser / tab notification and notificationClick action
+		</script>
 	</head>
 	<body>
 		<h1>Web Noticiation Demo</h1>
@@ -15,6 +18,11 @@
 	    <button class="btn--action" id="unsubscribe-push-2" disabled="disabled">Initiating...</button>
         <h2>"Add to homescreen" support</h2>
         <p>Demo supports full screen mode if added to homescreen as app shortcut in Chrome for Android</p>
+		<?php if (isset($_GET['notificationClick']) && $_GET['notificationClick'] == 1) { ?>
+		<h2>Info about NotificationClick Event</h2>
+		<p>Notification was clicked and a window opened!<br />
+		<a href="<?=$_SERVER['PHP_SELF']?>">Delete notificationClick info</a></p>
+		<?php } ?>
 		<script src="scripts/toFormData.js"></script>
 	    <script src="scripts/util.js"></script>
 	    <script src="scripts/script.js"></script>

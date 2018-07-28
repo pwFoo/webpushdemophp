@@ -53,7 +53,7 @@ function sendMessage(sub, title, message, delay) {
         token = sub.getKey('auth'),
         contentEncoding = (PushManager.supportedContentEncodings || ['aesgcm'])[0];
 
-    var data = {
+    var body = {
             subscription: {
                 endpoint: sub.endpoint,
                 publicKey: key ? btoa(String.fromCharCode.apply(null, new Uint8Array(key))) : null,
@@ -62,20 +62,18 @@ function sendMessage(sub, title, message, delay) {
             },
             payload: {
                 title: title,
-                message: message
+                message: message,
+                url: "index.php?notificationClick=1"
             }
     }
 
     if (delay) {
-        data.delay = delay;
+        body.delay = delay;
     }
-
-    console.log("REQUEST", data);
-    console.log(Notification.permission);
 
     return fetch('./api/notify.php', {
         method: 'post',
-        body: obj2fd(data) 
+        body: obj2fd(body)
     });
 }
 
@@ -139,7 +137,7 @@ document.addEventListener('DOMContentLoaded', function(event) {
         pushBtn2.addEventListener('click', function(event) {
             event.preventDefault();
             registerPush().then(function(sub) {
-                sendMessage(sub, 'Cool!', 'It works!');
+                sendMessage(sub, 'Cool!', 'It works', DELAY);
             });
         });
         updateUnsubscribeButtons();

@@ -1,6 +1,8 @@
 'use strict';
 
+importScripts('./scripts/toFormData.js');
 importScripts('./scripts/util.js');
+
 
 self.addEventListener('install', function(event) {
     self.skipWaiting();
@@ -12,10 +14,11 @@ self.addEventListener('activate', function(event) {
 
 self.addEventListener('push', function(event) {
     const data = JSON.parse(event.data.text());
-
+    console.log(data);
     event.waitUntil(
         registration.showNotification(data.title, {
             body: data.message,
+            data: data.url,
             icon: 'images/toast-image.jpg'
         })
     );
@@ -35,11 +38,11 @@ self.addEventListener('notificationclick', function(event) {
                             client = clientList[i];
                         }
                     }
-
+                    console.log("FOCUS CLIENT: ", client);
                     return client.focus();
                 }
-
-                return clients.openWindow('/');
+                console.log(clients);
+                return clients.openWindow(event.notification.data);
             })
     );
 });
