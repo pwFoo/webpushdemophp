@@ -223,14 +223,14 @@ var notify = function(elem, options = {}) {
             if (elem.getAttribute('src') == options.on) {
                 // unsubscribe push
                 unsubscribePush(options.unsubscribeUrl).then(function() {
-                    elem.setAttribute('src', options.off);
                     elem.setAttribute('title', 'Click to activate');
+                    elem.setAttribute('src', options.off);
                 });
             } else {
                 // subscribe push
                 registerPush(options.subscribeUrl, options.keyUrl).then(function(sub) {
-                    elem.setAttribute('src', options.on);
                     elem.setAttribute('title', 'Click to deactivate');
+                    elem.setAttribute('src', options.on);
                     sendMessage(options.url, sub, options.title, options.message, options.icon, options.clickUrl, options.delay);
                 });
             }
