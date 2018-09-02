@@ -12,6 +12,10 @@
 		<p>Send subscription and notification (optional get browser permission & subscribe to browser dependent service) via php backend to local browser.</p>
 		<p>Service Workers are NOT supported with Safari / IOS Safari at the moment!</p>
 
+		<h2>Closed browser support</h2>
+		<p>With delay configured (demo delay is 5 seconds) you have enough time to close the browser / tab after you activated the notifications. You should receive desktop / Android notifications pushed.
+		Click the notification opens the demo again.</p>
+
 		<h2>De-/Activate Notifications</h2>
 		<p>Toggle notifications by clicking the bell icon. A test notification is send on each activation click (with a configured delay of 5 seconds on server side).
 		Open the developer tools (network, console, application) for debugging un-/subscribe.</p>
@@ -30,6 +34,7 @@
 		<script src="scripts/notifications.js"></script>
 		<script>
 			var options = {
+				"delay": 5,
 			}
 
 			notify('notifyToggle', options);
