@@ -10,6 +10,7 @@
 		<h1>Web Noticiation Demo</h1>
 		<h2>Tested with Chrome, Edge, Opera, Firefox (all Win10) and Chrome for Android</h2>
 		<p>Send subscription and notification (optional get browser permission & subscribe to browser dependent service) via php backend to local browser.</p>
+		<p>Service Workers are NOT supported with Safari / IOS Safari at the moment!</p> 
 
 		<h2>De-/Activate Notifications</h2>
 		<div><input type="image" id="notifyToggle" src="images/notifications_off.png"></input></div>
