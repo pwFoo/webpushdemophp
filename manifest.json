@@ -1,6 +1,7 @@
 // full screen / homescreen app support: https://developer.chrome.com/multidevice/android/installtohomescreen
 {
     "name": "Web Push Notifications Demo",
+/*
     "icons": [
     {
       "src": "launcher-icon-0-75x.png",
@@ -39,7 +40,7 @@
       "density": 4.0
     }
   ],
-
+*/
   "start_url": "index.html",
   "display": "standalone",
   "orientation": "landscape"
