@@ -14,12 +14,13 @@ if (isset($_POST['delay'])) {
     sleep ($_POST['delay']);
 }
 
+// gcm auth
 $auth = [
-    'GCM' => "AAAA7H1rE4g:APA91bEUrpqj9XHCke4j8vnclVWL-nVSx_qiCaJCKPt6-tu8F9zyhJhztRq1Q-w-PvhD_9saDx7A-FJ8bXAAYUdivb58YECrpzfjUT0svMRNPzrsdEZ3Iy7NEPS0__G3ttgukVGol7Ik",
+    'GCM' => "",
     'VAPID' => [
-        'subject' => 'mailto:andre.hoeg@gmail.com',
-        'privateKey' => "3QUJQP9phGbphiTeLiCkt0OUXELkpFyOXurWbtGWUW0=",
-        'publicKey' => "BOPswRthDusT8g51qmSwSd17gs7GOJMo3MNmUEgiV8fSv5sq0pwiuK6x55wW9YGhm4IT5WOKfoHleOqkZ6Ez7Ho=",
+        'subject' => 'mailto:<EMAIL_ADDRESS>',
+        'privateKey' => "<PRIVKEY>",
+        'publicKey' => "<PUBKEY>",
     ],
 ];
 
